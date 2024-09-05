@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Alert</title>
+    <style>
+        /* Basic styles for the review box */
+        #reviewBox {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            padding: 20px;
+            border: 2px solid #00bcd4; /* Aqua color */
+            background-color: #e0f7fa; /* Light aqua color */
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .star {
+            font-size: 3em;
+            color: #ffffff; /* Light aqua color */
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .star.filled {
+            color: #ffee00; /* Aqua color */
+        }
+
+        .star:hover,
+        .star:hover ~ .star {
+            color: #00bcd4; /* Aqua color */
+        }
+
+        .review-message {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: #00796b; /* Darker aqua color */
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #00796b; /* Darker aqua color */
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Review Box HTML -->
+    <div id="reviewBox">
+        <button class="close-btn" id="closeBtn">&times;</button>
+        <h3>Rate Us</h3>
+        <div id="stars">
+            <span class="star" data-value="1">&#9733;</span>
+            <span class="star" data-value="2">&#9733;</span>
+            <span class="star" data-value="3">&#9733;</span>
+            <span class="star" data-value="4">&#9733;</span>
+            <span class="star" data-value="5">&#9733;</span>
+        </div>
+        <div class="review-message" id="reviewMessage">Click a star to rate</div>
+    </div>
+
+    <script>
+        const REVIEW_BOX_INTERVAL =  1000; // 1 hour 60 * 60 *
+        const INITIAL_DISPLAY_DELAY = 1000; // 1 second for testing
+
+        // Function to show the review box
+        function showReviewBox() {
+            document.getElementById('reviewBox').style.display = 'block';
+            localStorage.setItem('reviewBoxClosed', 'false');
+        }
+
+        // Function to hide the review box
+        function hideReviewBox() {
+            document.getElementById('reviewBox').style.display = 'none';
+            localStorage.setItem('reviewBoxClosed', 'true');
+            // Schedule the next appearance
+            setTimeout(() => {
+                if (localStorage.getItem('reviewBoxClosed') === 'true') {
+                    showReviewBox();
+                }
+            }, REVIEW_BOX_INTERVAL);
+        }
+
+        // Check if review box was previously closed
+        if (localStorage.getItem('reviewBoxClosed') !== 'false') {
+            setTimeout(showReviewBox, INITIAL_DISPLAY_DELAY); // Delay before first appearance
+        }
+
+        // Handle star click events
+        const stars = document.querySelectorAll('#stars .star');
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.getAttribute('data-value'));
+
+                stars.forEach(s => {
+                    if (parseInt(s.getAttribute('data-value')) <= rating) {
+                        s.classList.add('filled');
+                    } else {
+                        s.classList.remove('filled');
+                    }
+                });
+
+                document.getElementById('reviewMessage').textContent = `You rated ${rating} star(s)`;
+            });
+        });
+
+        // Handle close button click
+        document.getElementById('closeBtn').addEventListener('click', hideReviewBox);
+    </script>
+</body>
+</html>
